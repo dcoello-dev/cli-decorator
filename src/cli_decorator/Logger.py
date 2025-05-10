@@ -2,7 +2,6 @@ import logging
 import datetime
 
 from cli_decorator.Palette import *
-from cli_decorator.Color import *
 
 
 class ColorHandler(logging.Handler):

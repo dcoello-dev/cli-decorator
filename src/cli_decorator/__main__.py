@@ -24,7 +24,9 @@ def color_text():
                         type=COLOR, choices=list(COLOR))
 
     args = parser.parse_args()
-    print(cl(get_text(args), args.color))
+    lines = get_text(args).split('\n')
+    for line in lines:
+        print(cl(line, args.color))
 
 
 def log_text():
@@ -45,7 +47,9 @@ def log_text():
     logger.setLevel(eval(f"logging.{args.log_level.upper()}"))
     logger.addHandler(ColorHandler(context=args.name))
     text = get_text(args)
-    eval(f"logger.{args.log_level}('{text}')")
+    lines = text.split('\n')
+    for line in lines:
+        eval(f"logger.{args.log_level}('{line}')")
 
 
 if __name__ == "__main__":
