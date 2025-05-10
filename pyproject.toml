@@ -1,0 +1,43 @@
+[project]
+name = "cli-decorator"
+version = "0.0.1"
+authors = [
+  { name="dcoello-dev", email="dcpulido91@gmail.com" },
+]
+description = ""
+keywords = ["cli"]
+readme = "README.md"
+# license = { file = "LICENSE.txt" }
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+]
+
+[project.scripts]
+cld = "cli_decorator.__main__:color_text"
+cll = "cli_decorator.__main__:log_text"
+
+
+[project.urls]
+Repository = "https://github.com/dcoello-dev/cli-decorator"
+
+[project.optional-dependencies]
+tests = [
+  "pytest-mock==3.14.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "test",
+]
+pythonpath = [
+  ".",
+  "src",
+]
