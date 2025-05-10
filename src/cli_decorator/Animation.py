@@ -3,6 +3,9 @@ import sys
 import itertools
 import threading
 
+from cli_decorator.Palette import *
+from cli_decorator.Logger import *
+
 
 class Animation(threading.Thread):
     def __init__(self, logger, name, ongoing_msg, end_message_ok, end_message_failure):
@@ -26,7 +29,7 @@ class Animation(threading.Thread):
             if self.end_:
                 break
             sys.stdout.write(
-                f'\r[{cl(c, BLUE)}] {ColorHandler(self.name_).get_msg("ONGOING", self.ongoing_msg_)}')
+                f'\r[{cl(c, COLOR.BLUE)}] {ColorHandler(self.name_).get_msg("ONGOING", self.ongoing_msg_)}')
             sys.stdout.flush()
             time.sleep(0.1)
 

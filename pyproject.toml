@@ -21,7 +21,7 @@ dependencies = [
 [project.scripts]
 cld = "cli_decorator.__main__:color_text"
 cll = "cli_decorator.__main__:log_text"
-
+cle = "cli_decorator.__main__:progress_command"
 
 [project.urls]
 Repository = "https://github.com/dcoello-dev/cli-decorator"

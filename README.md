@@ -38,3 +38,12 @@ ls | cll
 echo "hello!" | cld -c RED | cll -n SCRIPT
 ```
 
+
+## cle
+
+Wrap a command execution with a fancy logger animation
+
+```bash
+cle sleep 1
+```
+
