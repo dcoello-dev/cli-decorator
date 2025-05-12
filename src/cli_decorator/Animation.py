@@ -43,8 +43,9 @@ class Animation(threading.Thread):
                 f'[{self.t_end_ - self.t_start_}] {self.end_message_failure_}')
 
     def through(self, msg):
-        sys.stdout.write(f'\r')
+        sys.stdout.write(f'\r\033[K')
         self.logger_.info(f'{msg}')
+        sys.stdout.flush()
 
     def end(self, ok=True):
         self.end_ = True

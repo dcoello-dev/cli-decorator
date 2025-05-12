@@ -7,13 +7,19 @@ from cli_decorator.Logger import *
 from cli_decorator.Animation import *
 
 
-def _ex_subprocess(cmd: str, shell=True) -> tuple:
+def _ex_subprocess(cmd: str, shell=True, forward_stdout=None) -> tuple:
     p = subprocess.Popen(
-        cmd, shell=shell,
+        f"unbuffer {cmd}", shell=shell,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
         executable='/bin/bash')
+    if forward_stdout is not None:
+        while True:
+            line = p.stdout.readline()
+            if not line:
+                break
+            forward_stdout.through(line.rstrip())
     output, error = p.communicate()
     return (p.returncode, output, error)
 
@@ -65,11 +71,24 @@ def log_text():
     sink(args, eval(f"logger.{args.log_level}"))
 
 
+def void(_):
+    pass
+
+
 def progress_command():
     parser = argparse.ArgumentParser(
         description="log text")
 
     parser.add_argument('command', nargs=argparse.REMAINDER)
+    parser.add_argument('stdin', nargs='?',
+                        type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        default=False,
+        help="forward command stdout")
+    parser.add_argument('-c', '--color', default=COLOR.WHITE,
+                        type=COLOR, choices=list(COLOR))
     parser.add_argument('-n', '--name', default="cll")
     parser.add_argument(
         '-l', '--log_level',
@@ -82,8 +101,18 @@ def progress_command():
     logger.addHandler(ColorHandler(context=args.name))
 
     command = ' '.join(args.command)
-
     a = Animation(logger, args.name,  f"executing {cl(command, COLOR.YELLOW)}",
                   f"{command} {cl('OK!', COLOR.GREEN)}", f"{command} {cl('ERROR!', COLOR.RED)}")
-    a.start()
-    a.end(_ex_subprocess(command)[0] == 0)
+    try:
+        if len(args.command) > 0:
+            a.start()
+            f = None
+            if args.verbose:
+                f = a
+            a.end(_ex_subprocess(command, forward_stdout=f)[0] == 0)
+        else:
+            a.start()
+            sink(args, a.through if args.verbose else void)
+            a.end()
+    except KeyboardInterrupt:
+        a.end()
