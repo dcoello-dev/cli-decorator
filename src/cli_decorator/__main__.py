@@ -86,8 +86,4 @@ def progress_command():
     a = Animation(logger, args.name,  f"executing {cl(command, COLOR.YELLOW)}",
                   f"{command} {cl('OK!', COLOR.GREEN)}", f"{command} {cl('ERROR!', COLOR.RED)}")
     a.start()
-    a.end(_ex_subprocess(command))
-
-
-if __name__ == "__main__":
-    main()
+    a.end(_ex_subprocess(command)[0] == 0)
