@@ -18,12 +18,15 @@ def _ex_subprocess(cmd: str, shell=True) -> tuple:
     return (p.returncode, output, error)
 
 
-def get_text(args):
-    text = ""
+def sink(args, send):
     if not sys.stdin.isatty():
-        text = args.stdin.read()[:-1]
-    text += f"{' '.join(args.text)}"
-    return text
+        for line in args.stdin:
+            line = line.replace('\n', '')
+            send(cl(line, args.color))
+    else:
+        lines = f"{' '.join(args.text)}".split('\n')
+        for line in lines:
+            send(cl(line, args.color))
 
 
 def color_text():
@@ -37,9 +40,7 @@ def color_text():
                         type=COLOR, choices=list(COLOR))
 
     args = parser.parse_args()
-    lines = get_text(args).split('\n')
-    for line in lines:
-        print(cl(line, args.color))
+    sink(args, print)
 
 
 def log_text():
@@ -50,6 +51,8 @@ def log_text():
     parser.add_argument('stdin', nargs='?',
                         type=argparse.FileType('r'), default=sys.stdin)
     parser.add_argument('-n', '--name', default="cll")
+    parser.add_argument('-c', '--color', default=COLOR.WHITE,
+                        type=COLOR, choices=list(COLOR))
     parser.add_argument(
         '-l', '--log_level',
         default='info', choices=['error', 'warning', 'info', 'debug', 'verbose'],
@@ -59,10 +62,7 @@ def log_text():
     logger = logging.getLogger(__name__)
     logger.setLevel(eval(f"logging.{args.log_level.upper()}"))
     logger.addHandler(ColorHandler(context=args.name))
-    text = get_text(args)
-    lines = text.split('\n')
-    for line in lines:
-        eval(f"logger.{args.log_level}('{line}')")
+    sink(args, eval(f"logger.{args.log_level}"))
 
 
 def progress_command():
@@ -83,7 +83,7 @@ def progress_command():
 
     command = ' '.join(args.command)
 
-    a = Animation(logger, "map-gen",  f"executing {cl(command, COLOR.YELLOW)}",
+    a = Animation(logger, args.name,  f"executing {cl(command, COLOR.YELLOW)}",
                   f"{command} {cl('OK!', COLOR.GREEN)}", f"{command} {cl('ERROR!', COLOR.RED)}")
     a.start()
     a.end(_ex_subprocess(command))
