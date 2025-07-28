@@ -8,7 +8,7 @@ from cli_decorator.Logger import *
 
 
 class Animation(threading.Thread):
-    def __init__(self, logger, name, ongoing_msg, end_message_ok, end_message_failure):
+    def __init__(self, logger, name, ongoing_msg, end_message_ok, end_message_failure, disable=False):
         super().__init__()
         self.name_ = name
         self.logger_ = logger
@@ -18,9 +18,10 @@ class Animation(threading.Thread):
         self.ok_ = True
         self.t_start_ = None
         self.t_end_ = None
+        self.disable_ = disable
 
     def update(self, msg):
-        self.msg_ = msg
+        self.ongoing_msg_ = msg
 
     def run(self):
         self.t_start_ = datetime.datetime.now()
@@ -28,13 +29,15 @@ class Animation(threading.Thread):
         for c in itertools.cycle(['|', '/', '-', '\\']):
             if self.end_:
                 break
-            sys.stdout.write(
-                f'\r[{cl(c, COLOR.BLUE)}] {ColorHandler(self.name_).get_msg("ONGOING", self.ongoing_msg_)}')
-            sys.stdout.flush()
-            time.sleep(0.1)
+            if not self.disable_:
+                sys.stdout.write(
+                    f'\r[{cl(c, COLOR.BLUE)}] {ColorHandler(self.name_).get_msg("ONGOING", self.ongoing_msg_)}')
+                sys.stdout.flush()
+                time.sleep(0.1)
 
         self.t_end_ = datetime.datetime.now()
-        sys.stdout.write(f'\r')
+        if not self.disable_:
+            sys.stdout.write(f'\r')
         if self.ok_:
             self.logger_.info(
                 f'[{self.t_end_ - self.t_start_}] {self.end_message_ok_}')
